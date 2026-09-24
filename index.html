@@ -144,6 +144,10 @@
       <div id="speakFeedback" class="feedback neutral">Tik op de microfoon en geef je antwoord.</div>
 
       <button class="primary" id="micBtn"><span class="mic-icon">🎙️</span><span id="micText">Spreek antwoord</span></button>
+
+      <div id="speakAnswer" class="answer hidden" style="margin-top:18px;margin-bottom:0"></div>
+      <button class="secondary" style="width:100%;margin-top:9px" id="revealSpeakBtn">Toon antwoord</button>
+
       <div class="secondary-row">
         <button class="secondary hidden" id="overrideBtn">Ik zei het juist</button>
         <button class="secondary" id="skipSpeakBtn">Overslaan</button>
@@ -207,7 +211,7 @@ const CARDS = [
   {nl:"Ik spreek niet goed Italiaans.", it:"Non parlo bene l’italiano."}
 ];
 
-const STORAGE_KEY = "prisma_italiano_l1_v1";
+const STORAGE_KEY = "prisma_italiano_l1_v3";
 const state = loadState();
 let currentId = null;
 let turn = state.turn || 0;
@@ -310,6 +314,10 @@ function render(){
   sf.textContent="Tik op de microfoon en geef je antwoord.";
   sf.className="feedback neutral";
   document.getElementById("overrideBtn").classList.add("hidden");
+  const sa=document.getElementById("speakAnswer");
+  sa.textContent=card.it;
+  sa.classList.add("hidden");
+  document.getElementById("revealSpeakBtn").textContent="Toon antwoord";
   setMicState("idle");
   updateStats();
 }
@@ -369,9 +377,26 @@ function speechMatches(heard, expected){
   const e=normalizeSpeech(expected);
   if(h===e) return true;
 
-  // Browser-ASR kan "e"/"è" of lidwoord/apostrof als losse tokens weergeven;
-  // bovenstaande normalisatie vangt dat op. Alleen zeer kleine transcriptiefouten
-  // in langere zinnen krijgen beperkte tolerantie.
+  // Browser-ASR is zwak bij woorden van één lettergreep.
+  // Voor zulke kaarten gebruiken we doelbewust ruimere, maar kaart-specifieke tolerantie.
+  const shortAliases = {
+    "per": ["pe","per","pero","pere","peer","pair","pear","par","pèr","pel","pep"],
+    "e": ["e","è","eh"],
+    "si": ["si","sì","sie","see"],
+    "ma": ["ma","mah"],
+    "qui": ["qui","cui","ki","kwi"]
+  };
+
+  if(shortAliases[e] && shortAliases[e].includes(h)) return true;
+
+  // Specifiek voor PER: Chrome/Samsung maakt hier vaak een iets ander kort p-woord van.
+  // Op deze ene kaart accepteren we daarom bijna elk zeer kort resultaat dat met p begint.
+  if(e==="per" && h && h.length<=6 && h.startsWith("p")) return true;
+
+  // Als de herkenner "per" in een iets langere transcriptie stopt, accepteren we dat ook.
+  if(e==="per" && h.split(" ").includes("per")) return true;
+
+  // Voor langere antwoorden blijft de controle streng, met slechts kleine ASR-tolerantie.
   if(e.length>=14){
     const dist=levenshtein(h,e);
     return dist <= Math.max(1, Math.floor(e.length*0.10));
@@ -437,7 +462,7 @@ function setupRecognition(){
   recognition.lang="it-IT";
   recognition.interimResults=false;
   recognition.continuous=false;
-  recognition.maxAlternatives=5;
+  recognition.maxAlternatives=10;
 
   recognition.onstart=()=>{
     recognizing=true;
@@ -502,6 +527,19 @@ function startRecognition(){
     try{ recognition.stop(); }catch(e){}
     return;
   }
+
+  // Waar de browser dit ondersteunt, geven we het verwachte Italiaanse
+  // antwoord als contextuele hint aan de herkenner. Dat helpt vooral bij
+  // ultrakorte woorden zoals "per", "e", "ma" en "sì".
+  try{
+    if("phrases" in recognition && window.SpeechRecognitionPhrase){
+      const target = CARDS[currentId].it
+        .replace(/[.!?;:]+$/g,"")
+        .trim();
+      recognition.phrases = [new SpeechRecognitionPhrase(target, 7.0)];
+    }
+  }catch(e){}
+
   try{ recognition.start(); }catch(e){}
 }
 
@@ -554,6 +592,26 @@ document.getElementById("skipWriteBtn").onclick=skip;
 
 // Spreken
 document.getElementById("micBtn").onclick=startRecognition;
+
+document.getElementById("revealSpeakBtn").onclick=()=>{
+  const a=document.getElementById("speakAnswer");
+  const b=document.getElementById("revealSpeakBtn");
+  const isHidden=a.classList.contains("hidden");
+
+  if(isHidden){
+    a.textContent=CARDS[currentId].it;
+    a.classList.remove("hidden");
+    b.textContent="Verberg antwoord";
+    // Een bekeken antwoord geldt als hulp: bij een daaropvolgend juist antwoord
+    // wordt deze kaart niet meteen naar een hogere bak gepromoveerd.
+    wrongAttemptOnCurrent=true;
+    speakItalian(CARDS[currentId].it);
+  }else{
+    a.classList.add("hidden");
+    b.textContent="Toon antwoord";
+  }
+};
+
 document.getElementById("skipSpeakBtn").onclick=skip;
 document.getElementById("overrideBtn").onclick=()=>{
   const f=document.getElementById("speakFeedback");
