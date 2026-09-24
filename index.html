@@ -1,0 +1,1661 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f2eb">
+<title>Prisma Italiaans — Les 1</title>
+<style>
+  :root{
+    --bg:#f5f2eb;
+    --card:#fffdf8;
+    --ink:#1d211f;
+    --muted:#747b75;
+    --line:#ddd8cd;
+    --accent:#176b4d;
+    --accent2:#e3efe9;
+    --bad:#a23f3f;
+    --badbg:#f8e8e6;
+    --good:#176b4d;
+    --goodbg:#e4f2ea;
+    --shadow:0 18px 50px rgba(33,38,34,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+  button,input{font:inherit}
+  body{padding:20px}
+  .app{max-width:780px;margin:0 auto}
+  header{display:flex;gap:18px;align-items:flex-start;justify-content:space-between;margin:5px 0 18px}
+  .eyebrow{font-size:.76rem;text-transform:uppercase;letter-spacing:.13em;color:var(--muted);font-weight:750}
+  h1{font-size:clamp(1.7rem,5vw,2.55rem);line-height:1.05;margin:.3rem 0 .25rem}
+  .sub{color:var(--muted);font-size:.95rem}
+  .reset{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:12px;padding:9px 11px;cursor:pointer}
+  .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
+  .stat{background:rgba(255,255,255,.55);border:1px solid var(--line);padding:10px;border-radius:14px;text-align:center}
+  .stat b{display:block;font-size:1.08rem}
+  .stat span{display:block;font-size:.72rem;color:var(--muted);margin-top:1px}
+  .tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;background:#eae5da;border-radius:15px;padding:5px;margin-bottom:14px}
+  .tab{border:0;background:transparent;padding:10px 7px;border-radius:11px;cursor:pointer;font-weight:700;color:#626862}
+  .tab.active{background:var(--card);color:var(--ink);box-shadow:0 2px 10px rgba(0,0,0,.05)}
+  .panel{display:none}
+  .panel.active{display:block}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);padding:clamp(22px,5vw,38px)}
+  .meta{display:flex;justify-content:space-between;align-items:center;gap:12px;color:var(--muted);font-size:.8rem;font-weight:650}
+  .boxpill{background:#eee9df;padding:5px 9px;border-radius:999px;color:#565c56}
+  .prompt-label{margin-top:30px;color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;font-weight:800}
+  .prompt{font-size:clamp(2rem,8vw,4.2rem);line-height:1.06;font-weight:760;letter-spacing:-.035em;margin:8px 0 30px;min-height:1.1em}
+  .answer{font-size:clamp(1.55rem,6vw,2.8rem);line-height:1.15;font-weight:720;color:var(--accent);margin:10px 0 26px}
+  .feedback{min-height:54px;border-radius:14px;padding:12px 14px;margin:0 0 14px;font-weight:650;display:flex;align-items:center}
+  .feedback:empty{display:none}
+  .feedback.good{background:var(--goodbg);color:var(--good)}
+  .feedback.bad{background:var(--badbg);color:var(--bad)}
+  .feedback.neutral{background:#efede6;color:#5d625e}
+  .primary{width:100%;border:0;border-radius:16px;background:var(--accent);color:white;padding:16px 18px;font-weight:800;font-size:1.05rem;cursor:pointer;min-height:58px}
+  .primary:disabled{opacity:.55;cursor:not-allowed}
+  .primary.listening{animation:pulse 1.2s infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(23,107,77,.23)}50%{box-shadow:0 0 0 12px rgba(23,107,77,0)}}
+  .secondary-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+  .secondary{border:1px solid var(--line);background:#faf7f0;border-radius:14px;padding:12px;cursor:pointer;color:#505650;font-weight:700}
+  .secondary.danger{color:var(--bad)}
+  .help{font-size:.79rem;color:var(--muted);line-height:1.5;margin:13px 4px 0}
+  .write-wrap{display:flex;gap:8px;margin-top:8px}
+  .write-input{flex:1;border:1px solid var(--line);background:white;border-radius:14px;padding:14px 15px;outline:none;font-size:1.05rem}
+  .write-input:focus{border-color:#9bb9ab;box-shadow:0 0 0 3px rgba(23,107,77,.08)}
+  .smallbtn{border:0;background:#e7eee9;color:var(--accent);font-weight:800;padding:0 17px;border-radius:14px;cursor:pointer}
+  .progressbar{height:8px;background:#e7e2d8;border-radius:999px;overflow:hidden;margin:14px 0 20px}
+  .progressfill{height:100%;background:var(--accent);width:0;transition:width .25s ease}
+  .hidden{display:none!important}
+  .mic-icon{font-size:1.25rem;vertical-align:-.08em;margin-right:6px}
+  .support{margin-top:12px;font-size:.75rem;color:var(--muted);text-align:center}
+  @media (max-width:560px){
+    body{padding:12px}
+    header{margin-top:2px}
+    .stats{grid-template-columns:repeat(5,1fr)}
+    .stat{padding:8px 3px}
+    .card{border-radius:20px}
+    .secondary-row{grid-template-columns:1fr}
+    .prompt{margin-bottom:24px}
+  }
+
+  .statbtn{font:inherit;color:inherit;cursor:pointer;transition:transform .08s ease,box-shadow .15s ease;background:rgba(255,255,255,.55)}
+  .statbtn:active{transform:scale(.98)}
+  .statbtn:focus-visible{outline:3px solid rgba(23,107,77,.22);outline-offset:2px}
+  .modal-backdrop{position:fixed;inset:0;background:rgba(20,24,21,.42);display:flex;align-items:flex-end;justify-content:center;padding:18px;z-index:1000}
+  .modal-backdrop.hidden{display:none!important}
+  .modal{width:min(760px,100%);max-height:82vh;background:var(--card);border:1px solid var(--line);border-radius:24px 24px 18px 18px;box-shadow:0 24px 80px rgba(0,0,0,.22);overflow:hidden;display:flex;flex-direction:column}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;border-bottom:1px solid var(--line)}
+  .modal-head h2{margin:0;font-size:1.35rem}
+  .modal-close{border:1px solid var(--line);background:#faf7f0;border-radius:12px;padding:8px 11px;cursor:pointer;font-weight:800;color:#5a605b}
+  .word-list{overflow:auto;padding:8px 14px 18px}
+  .word-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;padding:13px 6px;border-bottom:1px solid #ece7dd;align-items:start}
+  .word-row:last-child{border-bottom:0}
+  .word-nl{font-weight:700}
+  .word-it{color:var(--accent);font-weight:750}
+  .word-empty{padding:24px 8px;color:var(--muted);text-align:center}
+  @media(max-width:560px){
+    .modal-backdrop{padding:0;align-items:flex-end}
+    .modal{border-radius:22px 22px 0 0;max-height:86vh}
+    .word-row{grid-template-columns:1fr;gap:4px}
+  }
+
+
+  .section-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;margin-bottom:12px;box-shadow:0 8px 28px rgba(33,38,34,.045)}
+  .section-card h3{margin:0 0 8px;font-size:1.05rem}
+  .section-card p{margin:7px 0;color:#4f5650;line-height:1.55}
+  .section-card .example{background:#f2eee5;border-radius:12px;padding:11px 12px;margin-top:10px;line-height:1.55}
+  .section-card .example b{color:var(--accent)}
+  .grammar-intro{color:var(--muted);font-size:.9rem;line-height:1.5;margin:0 2px 14px}
+  .practice-top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:18px;color:var(--muted);font-weight:700;font-size:.86rem}
+  .practice-question{font-size:clamp(1.35rem,5vw,2rem);font-weight:760;line-height:1.25;margin:12px 0 20px}
+  .choice-list{display:grid;gap:9px}
+  .choice-btn{width:100%;text-align:left;border:1px solid var(--line);background:#faf7f0;border-radius:14px;padding:13px 14px;cursor:pointer;font-weight:700;color:#454b46}
+  .choice-btn:hover{border-color:#b9c7be}
+  .choice-btn:disabled{cursor:default;opacity:.85}
+  .choice-btn.correct{background:var(--goodbg);border-color:#a7cbb8;color:var(--good)}
+  .choice-btn.wrong{background:var(--badbg);border-color:#ddb8b4;color:var(--bad)}
+  .practice-input-row{display:flex;gap:8px}
+  .practice-input{flex:1;border:1px solid var(--line);background:white;border-radius:14px;padding:14px 15px;outline:none;font-size:1.05rem}
+  .practice-input:focus{border-color:#9bb9ab;box-shadow:0 0 0 3px rgba(23,107,77,.08)}
+  .practice-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .practice-note{color:var(--muted);font-size:.8rem;line-height:1.45;margin-top:10px}
+  @media(max-width:650px){
+    .tabs{grid-template-columns:repeat(2,1fr)}
+  }
+
+
+  .attentionStat{background:#fff4e4;border-color:#e3cda8}
+  .attentionStat b{color:#9a6320}
+  .dontknow{border-color:#e3cda8!important;background:#fff8ed!important;color:#8b5b20!important}
+  .shortmode{font-size:.78rem;color:#7a674e;margin-top:8px;text-align:center}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <div class="eyebrow">Prisma Italiaans</div>
+      <h1>Les 1</h1>
+      <div class="sub">Materiaal t/m p. 11 · 50 kaarten · lokale spraak-AI</div>
+    </div>
+    <button class="reset" id="resetBtn" title="Wis alle lokale voortgang">Reset</button>
+  </header>
+
+  <div class="stats">
+    <button class="stat statbtn" id="showTotal" type="button"><b id="sTotal">50</b><span>Totaal</span></button>
+    <button class="stat statbtn attentionStat" id="showB0" type="button"><b id="s0">0</b><span>Extra</span></button>
+    <button class="stat statbtn" id="showB1" type="button"><b id="s1">50</b><span>Bak 1</span></button>
+    <button class="stat statbtn" id="showB2" type="button"><b id="s2">0</b><span>Bak 2</span></button>
+    <button class="stat statbtn" id="showB3" type="button"><b id="s3">0</b><span>Bak 3</span></button>
+  </div>
+  <div class="progressbar"><div class="progressfill" id="progressfill"></div></div>
+
+  <nav class="tabs" aria-label="Leeronderdelen">
+    <button class="tab" data-mode="cards">Kaarten</button>
+    <button class="tab" data-mode="write">Schrijven</button>
+    <button class="tab active" data-mode="speak">Spreken</button>
+    <button class="tab" data-mode="grammar">Grammatica</button>
+    <button class="tab" data-mode="practice">Oefenen</button>
+  </nav>
+
+  <section class="panel" id="cardsPanel">
+    <div class="card">
+      <div class="meta"><span id="cardsCounter"></span><span class="boxpill" id="cardsBox"></span></div>
+      <div class="prompt-label">Nederlands</div>
+      <div class="prompt" id="cardsPrompt"></div>
+      <div id="cardsAnswer" class="answer hidden"></div>
+      <button class="primary" id="showAnswerBtn">Toon antwoord</button>
+      <div class="secondary-row hidden" id="gradeButtons">
+        <button class="secondary danger" id="wrongBtn">Fout</button>
+        <button class="secondary" id="rightBtn">Juist</button>
+      </div>
+      <button class="secondary dontknow" style="width:100%;margin-top:8px" id="dontKnowCardsBtn">Ik weet het niet → Extra aandacht</button>
+      <button class="secondary" style="width:100%;margin-top:8px" id="skipCardsBtn">Overslaan</button>
+    </div>
+  </section>
+
+  <section class="panel" id="writePanel">
+    <div class="card">
+      <div class="meta"><span id="writeCounter"></span><span class="boxpill" id="writeBox"></span></div>
+      <div class="prompt-label">Schrijf in het Italiaans</div>
+      <div class="prompt" id="writePrompt"></div>
+      <div id="writeFeedback" class="feedback"></div>
+      <div class="write-wrap">
+        <input id="writeInput" class="write-input" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Jouw antwoord…">
+        <button id="checkWriteBtn" class="smallbtn">Check</button>
+      </div>
+      <div class="secondary-row">
+        <button class="secondary" id="revealWriteBtn">Toon antwoord</button>
+        <button class="secondary" id="skipWriteBtn">Overslaan</button>
+      </div>
+      <button class="secondary dontknow" style="width:100%;margin-top:8px" id="dontKnowWriteBtn">Ik weet het niet → Extra aandacht</button>
+      <div class="help">Spelling, accenten en apostrofs tellen mee. Hoofdletters en eindpunctuatie niet.</div>
+    </div>
+  </section>
+
+  <section class="panel active" id="speakPanel">
+    <div class="card">
+      <div class="meta"><span id="speakCounter"></span><span class="boxpill" id="speakBox"></span></div>
+      <div class="prompt-label">Zeg in het Italiaans</div>
+      <div class="prompt" id="speakPrompt"></div>
+      <div id="speakFeedback" class="feedback neutral">Tik op de microfoon en geef je antwoord.</div>
+
+      <button class="primary" id="micBtn"><span class="mic-icon">🎙️</span><span id="micText">Spreek antwoord</span></button>
+
+      <div id="speakAnswer" class="answer hidden" style="margin-top:18px;margin-bottom:0"></div>
+      <button class="secondary" style="width:100%;margin-top:9px" id="revealSpeakBtn">Toon antwoord</button>
+
+      <div class="secondary-row">
+        <button class="secondary hidden" id="overrideBtn">Ik zei het juist</button>
+        <button class="secondary" id="skipSpeakBtn">Overslaan</button>
+      </div>
+      <button class="secondary dontknow" style="width:100%;margin-top:8px" id="dontKnowSpeakBtn">Ik weet het niet → Extra aandacht</button>
+      <div class="support" id="speechSupport"></div>
+      <div class="shortmode" id="whisperStatus">Spraakengine: lokaal Whisper + browserfallback · eerste gebruik downloadt het model</div>
+      <div class="shortmode hidden" id="shortModeInfo">Korte-woordenmodus actief: Whisper en browserherkenning worden gecombineerd.</div>
+    </div>
+  </section>
+
+  <section class="panel" id="grammarPanel">
+    <div class="grammar-intro">Les 1 · alleen grammatica die voorkomt in de huidige Prisma-stof.</div>
+
+    <div class="section-card">
+      <h3>1. Formeel aanspreken met <em>Lei</em></h3>
+      <p><b>Lei</b> betekent formeel “u”. In de zinnen uit deze les wordt daarbij de derde persoon enkelvoud gebruikt.</p>
+      <div class="example"><b>Come sta?</b> — Hoe gaat het met u?<br><b>E Lei come si chiama?</b> — En hoe heet u?<br><b>Lei chi è?</b> — Wie bent u?</div>
+    </div>
+
+    <div class="section-card">
+      <h3>2. <em>Essere</em>: <em>sono</em> en <em>è</em></h3>
+      <p>In deze les kom je twee vormen van <em>essere</em> (“zijn”) tegen: <b>sono</b> bij “ik” en <b>è</b> bij formeel <em>Lei</em>.</p>
+      <div class="example"><b>Sono un collega.</b> — Ik ben een collega.<br><b>Lei chi è?</b> — Wie bent u?</div>
+    </div>
+
+    <div class="section-card">
+      <h3>3. Je naam zeggen: <em>chiamarsi</em></h3>
+      <p>Voor “heten” gebruikt het Italiaans hier het wederkerende werkwoord <em>chiamarsi</em>.</p>
+      <div class="example"><b>Mi chiamo Valli.</b> — Ik heet Valli.<br><b>Come si chiama?</b> — Hoe heet u?</div>
+    </div>
+
+    <div class="section-card">
+      <h3>4. Ontkenning met <em>non</em></h3>
+      <p><b>Non</b> staat vóór het werkwoord wanneer je iets ontkent.</p>
+      <div class="example"><b>Non capisco.</b> — Ik begrijp het niet.<br><b>Non parlo bene l’italiano.</b> — Ik spreek niet goed Italiaans.<br><b>Non c’è male.</b> — Niet slecht.</div>
+    </div>
+
+    <div class="section-card">
+      <h3>5. Lidwoorden en <em>del</em></h3>
+      <p>Je ziet in les 1 onder andere <b>il</b>, <b>la</b> en <b>un</b>. <b>del</b> is de samentrekking van <em>di + il</em> en betekent hier “van de / van”.</p>
+      <div class="example"><b>il lavoro</b> · <b>la signora</b> · <b>un collega</b><br><b>del signor Tosi</b> — van meneer Tosi</div>
+    </div>
+
+    <div class="section-card">
+      <h3>6. Voorzetsels uit deze les</h3>
+      <p>Leer ze voorlopig vooral als onderdeel van de vaste combinaties die je tegenkomt.</p>
+      <div class="example"><b>a Milano</b> — in Milaan<br><b>per il lavoro</b> — voor het werk<br><b>del signor Tosi</b> — van meneer Tosi</div>
+    </div>
+  </section>
+
+  <section class="panel" id="practicePanel">
+    <div class="card">
+      <div class="practice-top">
+        <span id="practiceProgress">Oefening 1</span>
+        <span id="practiceScore">Score 0/0</span>
+      </div>
+      <div class="prompt-label" id="practiceLabel">Kies het juiste antwoord</div>
+      <div class="practice-question" id="practiceQuestion"></div>
+
+      <div id="practiceChoices" class="choice-list"></div>
+
+      <div id="practiceInputWrap" class="practice-input-row hidden">
+        <input id="practiceInput" class="practice-input" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Vul het ontbrekende woord in…">
+        <button id="practiceCheckBtn" class="smallbtn">Check</button>
+      </div>
+
+      <div id="practiceFeedback" class="feedback hidden"></div>
+
+      <div class="practice-actions">
+        <button class="secondary" id="practiceRevealBtn">Toon antwoord</button>
+        <button class="secondary" id="practiceNextBtn">Volgende</button>
+      </div>
+      <button class="secondary" style="width:100%;margin-top:8px" id="practiceRestartBtn">Nieuwe reeks</button>
+      <div class="practice-note">Deze oefeningen veranderen je bakken niet. De kaartenbak blijft uitsluitend gebaseerd op zelfstandig herinneren.</div>
+    </div>
+  </section>
+
+</div>
+
+<div class="modal-backdrop hidden" id="boxModal" role="dialog" aria-modal="true" aria-labelledby="boxModalTitle">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="boxModalTitle">Woorden</h2>
+      <button class="modal-close" id="boxModalClose" type="button">Sluiten</button>
+    </div>
+    <div class="word-list" id="boxWordList"></div>
+  </div>
+</div>
+
+<script>
+const CARDS = [
+  {nl:"de tramhalte", it:"la fermata del tram"},
+  {nl:"de heer / meneer", it:"il signore"},
+  {nl:"meneer Tosi", it:"signor Tosi"},
+  {nl:"goedendag", it:"buongiorno"},
+  {nl:"de mevrouw / mevrouw", it:"la signora"},
+  {nl:"hallo / goedendag", it:"salve"},
+  {nl:"Hoe gaat het met u?", it:"Come sta?"},
+  {nl:"goed", it:"bene"},
+  {nl:"bedankt / dank u", it:"grazie"},
+  {nl:"en", it:"e"},
+  {nl:"u", it:"Lei"},
+  {nl:"niet slecht", it:"non c’è male"},
+  {nl:"pardon / excuseert u mij", it:"scusi"},
+  {nl:"Wie bent u?", it:"Lei chi è?"},
+  {nl:"wie", it:"chi"},
+  {nl:"ik ben", it:"sono"},
+  {nl:"een collega", it:"un collega"},
+  {nl:"Nederlands", it:"olandese"},
+  {nl:"van meneer Tosi", it:"del signor Tosi"},
+  {nl:"aangenaam!", it:"piacere!"},
+  {nl:"En hoe heet u?", it:"E Lei come si chiama?"},
+  {nl:"Ik heet Valli", it:"mi chiamo Valli"},
+  {nl:"hier", it:"qui"},
+  {nl:"in Milaan", it:"a Milano"},
+  {nl:"voor", it:"per"},
+  {nl:"het werk", it:"il lavoro"},
+  {nl:"nietwaar? / toch?", it:"vero?"},
+  {nl:"waar", it:"vero"},
+  {nl:"Kunt u dat alstublieft herhalen?", it:"Può ripetere per favore?"},
+  {nl:"herhalen", it:"ripetere"},
+  {nl:"alstublieft", it:"per favore"},
+  {nl:"spreken", it:"parlare"},
+  {nl:"Italiaans", it:"italiano"},
+  {nl:"zeker / natuurlijk", it:"certo"},
+  {nl:"Italië", it:"Italia"},
+  {nl:"normaal gesproken", it:"normalmente"},
+  {nl:"ja", it:"sì"},
+  {nl:"maar", it:"ma"},
+  {nl:"nu", it:"adesso"},
+  {nl:"de vakantie", it:"la vacanza"},
+  {nl:"kijk / hier is", it:"ecco"},
+  {nl:"aankomen", it:"arrivare"},
+  {nl:"de tram", it:"il tram"},
+  {nl:"dan / dus", it:"allora"},
+  {nl:"tot ziens", it:"arrivederci"},
+  {nl:"tot ziens (formeel, tegen één persoon)", it:"arrivederLa"},
+  {nl:"goedenavond", it:"buonasera"},
+  {nl:"hallo / dag", it:"ciao"},
+  {nl:"Ik begrijp het niet.", it:"Non capisco."},
+  {nl:"Ik spreek niet goed Italiaans.", it:"Non parlo bene l’italiano."}
+];
+
+const PRACTICE = [
+  {type:"choice", q:"Welke zin betekent formeel: ‘Hoe gaat het met u?’", options:["Come sta?","Come si chiama?","Lei chi è?","Non c’è male"], answer:"Come sta?"},
+  {type:"input", q:"Vul aan: ___ un collega.", answer:"sono", display:"Sono un collega."},
+  {type:"choice", q:"Wat betekent ‘Lei’ in deze les?", options:["jij","u","wij","zij"], answer:"u"},
+  {type:"input", q:"Vul aan: Lei chi ___?", answer:"è", display:"Lei chi è?"},
+  {type:"choice", q:"Welke zin betekent ‘Ik heet Valli’?", options:["Sono Valli.","Mi chiamo Valli.","Lei si chiama Valli.","Parlo Valli."], answer:"Mi chiamo Valli."},
+  {type:"input", q:"Vul aan: Non ___ bene l’italiano.", answer:"parlo", display:"Non parlo bene l’italiano."},
+  {type:"choice", q:"Welke vorm betekent ‘van meneer Tosi’?", options:["a signor Tosi","per signor Tosi","del signor Tosi","il signor Tosi"], answer:"del signor Tosi"},
+  {type:"input", q:"Vul aan: ___ Milano.", answer:"a", display:"a Milano"},
+  {type:"choice", q:"Welke combinatie betekent ‘voor het werk’?", options:["a il lavoro","per il lavoro","del lavoro","qui lavoro"], answer:"per il lavoro"},
+  {type:"input", q:"Vul aan: Non ___ . — Ik begrijp het niet.", answer:"capisco", display:"Non capisco."},
+  {type:"choice", q:"Welke vraag betekent ‘Wie bent u?’", options:["Come sta?","Lei chi è?","E Lei?","Come si chiama?"], answer:"Lei chi è?"},
+  {type:"input", q:"Vul aan: Mi ___ Valli.", answer:"chiamo", display:"Mi chiamo Valli."},
+  {type:"choice", q:"Welke zin gebruikt een ontkenning?", options:["Parlo italiano.","Non parlo bene l’italiano.","Sono un collega.","A Milano."], answer:"Non parlo bene l’italiano."},
+  {type:"choice", q:"Welk woord is een onbepaald lidwoord?", options:["il","la","un","del"], answer:"un"},
+  {type:"input", q:"Vul aan: E Lei come si ___?", answer:"chiama", display:"E Lei come si chiama?"}
+];
+
+const STORAGE_KEY = "prisma_italiano_l1_v3";
+const state = loadState();
+let currentId = null;
+let turn = state.turn || 0;
+let lastId = null;
+let mode = "speak";
+let recognition = null;
+let recognizing = false;
+let speechBusy = false;
+let wrongAttemptOnCurrent = false;
+let speechCandidates = [];
+let speechDetected = false;
+let speechSessionResolved = false;
+let speechStopTimer = null;
+let speechHardTimer = null;
+let speechSessionNo = 0;
+let localItalianCommandAvailable = false;
+
+// Lokale Whisper-engine
+let whisperPipeline = null;
+let whisperLoadingPromise = null;
+let whisperDevice = null;
+let localRecorder = null;
+let localStream = null;
+let localRecordingStop = null;
+let localRecordingActive = false;
+let ensembleRecognition = null;
+let practiceOrder=[];
+let practicePos=0;
+let practiceCorrect=0;
+let practiceAnswered=0;
+let practiceLocked=false;
+
+
+function defaultCardState(){
+  return Object.fromEntries(CARDS.map((_,i)=>[i,{box:1,due:0,seen:0,correct:0,wrong:0}]));
+}
+function loadState(){
+  try{
+    const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if(s && s.cards) return s;
+  }catch(e){}
+  return {cards:defaultCardState(),turn:0};
+}
+function saveState(){
+  state.turn = turn;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+function ensureAllCards(){
+  CARDS.forEach((_,i)=>{
+    if(!state.cards[i]) state.cards[i]={box:1,due:0,seen:0,correct:0,wrong:0};
+  });
+}
+ensureAllCards();
+
+function counts(){
+  const vals = Object.values(state.cards);
+  return {
+    b0: vals.filter(x=>x.box===0).length,
+    b1: vals.filter(x=>x.box===1).length,
+    b2: vals.filter(x=>x.box===2).length,
+    b3: vals.filter(x=>x.box===3).length
+  };
+}
+function updateStats(){
+  const c=counts();
+  document.getElementById("sTotal").textContent=CARDS.length;
+  document.getElementById("s0").textContent=c.b0;
+  document.getElementById("s1").textContent=c.b1;
+  document.getElementById("s2").textContent=c.b2;
+  document.getElementById("s3").textContent=c.b3;
+  document.getElementById("progressfill").style.width=((c.b2+c.b3)/CARDS.length*100)+"%";
+}
+function pickNext(){
+  const ids = CARDS.map((_,i)=>i);
+  const due = ids.filter(i=>state.cards[i].due<=turn && i!==lastId);
+  let pool = due.length?due:ids.filter(i=>i!==lastId);
+  if(!pool.length) pool=ids;
+
+  // Extra aandacht krijgt veruit de hoogste prioriteit.
+  const weighted=[];
+  pool.forEach(i=>{
+    const b=state.cards[i].box;
+    const w=b===0?16:(b===1?7:(b===2?3:1));
+    for(let k=0;k<w;k++) weighted.push(i);
+  });
+  return weighted[Math.floor(Math.random()*weighted.length)];
+}
+function newCard(){
+  if(speechBusy) return;
+  lastId=currentId;
+  currentId=pickNext();
+  wrongAttemptOnCurrent=false;
+  render();
+}
+function boxLabel(id){ return state.cards[id].box===0 ? "Extra aandacht" : "Bak "+state.cards[id].box; }
+function counterLabel(){
+  const c=counts();
+  return c.b0>0 ? `${c.b0} extra · ${c.b3}/${CARDS.length} in Bak 3` : `${c.b3}/${CARDS.length} in Bak 3`;
+}
+function render(){
+  if(currentId===null) currentId=pickNext();
+  const card=CARDS[currentId];
+
+  ["cards","write","speak"].forEach(prefix=>{
+    document.getElementById(prefix+"Counter").textContent=counterLabel();
+    document.getElementById(prefix+"Box").textContent=boxLabel(currentId);
+    document.getElementById(prefix+"Prompt").textContent=card.nl;
+  });
+
+  // Kaarten
+  document.getElementById("cardsAnswer").textContent=card.it;
+  document.getElementById("cardsAnswer").classList.add("hidden");
+  document.getElementById("showAnswerBtn").classList.remove("hidden");
+  document.getElementById("gradeButtons").classList.add("hidden");
+
+  // Schrijven
+  const wf=document.getElementById("writeFeedback");
+  wf.textContent="";
+  wf.className="feedback";
+  document.getElementById("writeInput").value="";
+  setTimeout(()=>{ if(mode==="write") document.getElementById("writeInput").focus(); },50);
+
+  // Spreken
+  const sf=document.getElementById("speakFeedback");
+  sf.textContent="Tik op de microfoon en geef je antwoord.";
+  sf.className="feedback neutral";
+  document.getElementById("overrideBtn").classList.add("hidden");
+  const sa=document.getElementById("speakAnswer");
+  sa.textContent=card.it;
+  sa.classList.add("hidden");
+  document.getElementById("revealSpeakBtn").textContent="Toon antwoord";
+  const shortInfo=document.getElementById("shortModeInfo");
+  shortInfo.classList.toggle("hidden", !isShortSpeechTarget(card.it));
+  setMicState("idle");
+  updateStats();
+}
+function advanceBox(id, hadWrong=false){
+  const s=state.cards[id];
+  const startingBox=s.box;
+  s.seen++;
+  s.correct++;
+  turn++;
+
+  if(hadWrong){
+    // Na hulp/fout geen snelle promotie. Extra-aandachtkaarten blijven extra.
+    s.box = startingBox===0 ? 0 : 1;
+    s.due = turn + (s.box===0 ? 1 : 3);
+  } else if(startingBox===0){
+    // Een kaart uit Extra aandacht moet eerst bewijzen dat ze weer Bak 1 aankan.
+    s.box=1;
+    s.due=turn+3;
+  } else if(startingBox===1){
+    s.box=2;
+    s.due=turn+5;
+  } else if(startingBox===2){
+    s.box=3;
+    s.due=turn+15;
+  } else {
+    s.box=3;
+    s.due=turn+30;
+  }
+  saveState(); updateStats();
+}
+function markWrong(id){
+  const s=state.cards[id];
+  s.seen++; s.wrong++;
+  // Als een kaart al Extra aandacht nodig had, blijft ze daar.
+  s.box = s.box===0 ? 0 : 1;
+  turn++;
+  s.due=turn+(s.box===0?1:3);
+  wrongAttemptOnCurrent=true;
+  saveState(); updateStats();
+}
+function markDontKnow(id){
+  const s=state.cards[id];
+  s.seen++;
+  s.wrong++;
+  s.box=0;
+  turn++;
+  s.due=turn+1;
+  wrongAttemptOnCurrent=true;
+  saveState();
+  updateStats();
+}
+function dontKnowCurrent(){
+  if(currentId===null) return;
+
+  // Stop een eventuele actieve luistersessie vóór we het correcte antwoord afspelen.
+  speechSessionNo++;
+  clearSpeechTimers();
+  if(localRecordingActive) stopLocalRecording();
+  stopEnsembleBrowserRecognition();
+  try{
+    if(recognition && recognizing) recognition.abort();
+  }catch(e){}
+  recognizing=false;
+  speechSessionResolved=true;
+
+  const expected=CARDS[currentId].it;
+  markDontKnow(currentId);
+
+  if(mode==="cards"){
+    document.getElementById("cardsAnswer").textContent=expected;
+    document.getElementById("cardsAnswer").classList.remove("hidden");
+  } else if(mode==="write"){
+    const f=document.getElementById("writeFeedback");
+    f.textContent="Extra aandacht · Correct: "+expected;
+    f.className="feedback neutral";
+  } else if(mode==="speak"){
+    const a=document.getElementById("speakAnswer");
+    a.textContent=expected;
+    a.classList.remove("hidden");
+    const f=document.getElementById("speakFeedback");
+    f.textContent="Extra aandacht · luister naar het correcte antwoord.";
+    f.className="feedback neutral";
+  }
+
+  speakItalian(expected,()=>setTimeout(()=>newCard(),650));
+}
+function skip(){
+  turn++;
+  state.cards[currentId].due=turn+2;
+  saveState();
+  newCard();
+}
+function normalizeSpeech(s){
+  return s.toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/[’‘`´]/g,"'")
+    .replace(/['"]/g," ")
+    .replace(/[.,!?;:()[\]{}]/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+}
+function normalizeWrite(s){
+  return s.toLowerCase()
+    .normalize("NFC")
+    .replace(/[’‘`´]/g,"'")
+    .replace(/[.!?;:]+$/g,"")
+    .replace(/\s+/g," ")
+    .trim();
+}
+function isShortSpeechTarget(expected){
+  const e=normalizeSpeech(expected);
+  return !e.includes(" ") && e.length<=5;
+}
+
+function speechMatches(heard, expected){
+  const h=normalizeSpeech(heard);
+  const e=normalizeSpeech(expected);
+  if(!h) return false;
+  if(h===e) return true;
+
+  // Alle woorden die de Italiaanse herkenner geregeld teruggeeft voor
+  // zeer korte doelwoorden. Accenten zijn reeds genormaliseerd.
+  const shortAliases = {
+    "per": ["pe","pero","pere","peer","pair","pear","par","pel","pep","pers"],
+    "e": ["eh","he"],
+    "si": ["sie","see","sea"],
+    "ma": ["mah"],
+    "qui": ["cui","kwi","ki"],
+    "lei": ["ley","lay"],
+    "chi": ["ki"],
+    "sono": ["son","sono"],
+    "bene": ["ben","bene"],
+    "vero": ["ver","vero"],
+    "certo": ["certo","certa"],
+    "ecco": ["eco","ecco"],
+    "ciao": ["chao","chau","ciao"]
+  };
+  if(shortAliases[e] && shortAliases[e].includes(h)) return true;
+
+  // Soms zet Chrome een kort woord in een mini-zinnetje/transcript.
+  const tokens=h.split(" ");
+  if(tokens.includes(e)) return true;
+  if(shortAliases[e] && tokens.some(t=>shortAliases[e].includes(t))) return true;
+
+  if(isShortSpeechTarget(expected) && !h.includes(" ")){
+    // Voor korte woorden accepteren we één kleine transcriptiefout wanneer
+    // beginletter en lengte voldoende overeenkomen.
+    if(e.length>=3 && h.length<=e.length+2 && Math.abs(h.length-e.length)<=2){
+      if(h[0]===e[0] && levenshtein(h,e)<=1) return true;
+    }
+
+    // 'per' is een bekend probleemgeval in Chrome Android:
+    // een kort p-resultaat is hier voldoende, mits het één enkel woord is.
+    if(e==="per" && h.startsWith("p") && h.length<=6) return true;
+  }
+
+  // Voor langere antwoorden slechts beperkte tolerantie.
+  if(e.length>=14){
+    const dist=levenshtein(h,e);
+    return dist <= Math.max(1, Math.floor(e.length*0.10));
+  }
+  return false;
+}
+function levenshtein(a,b){
+  const m=a.length,n=b.length;
+  const dp=Array.from({length:m+1},()=>Array(n+1).fill(0));
+  for(let i=0;i<=m;i++) dp[i][0]=i;
+  for(let j=0;j<=n;j++) dp[0][j]=j;
+  for(let i=1;i<=m;i++){
+    for(let j=1;j<=n;j++){
+      dp[i][j]=Math.min(
+        dp[i-1][j]+1,
+        dp[i][j-1]+1,
+        dp[i-1][j-1]+(a[i-1]===b[j-1]?0:1)
+      );
+    }
+  }
+  return dp[m][n];
+}
+function getItalianVoice(){
+  const voices=speechSynthesis.getVoices();
+  return voices.find(v=>v.lang.toLowerCase()==="it-it") ||
+         voices.find(v=>v.lang.toLowerCase().startsWith("it")) || null;
+}
+function speakItalian(text, then){
+  speechBusy=true;
+  setMicState("busy");
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang="it-IT";
+  u.rate=.88;
+  u.pitch=1;
+  const v=getItalianVoice();
+  if(v) u.voice=v;
+  u.onend=()=>{speechBusy=false; if(then) then();};
+  u.onerror=()=>{speechBusy=false; if(then) then();};
+  speechSynthesis.speak(u);
+}
+function setMicState(s){
+  const b=document.getElementById("micBtn");
+  const t=document.getElementById("micText");
+  b.classList.remove("listening");
+  if(s==="listening"){
+    b.disabled=false; b.classList.add("listening"); t.textContent="Ik luister… (tik om te stoppen)";
+  } else if(s==="busy"){
+    b.disabled=true; t.textContent="Italiaanse herhaling…";
+  } else {
+    b.disabled=false; t.textContent=wrongAttemptOnCurrent?"Probeer opnieuw":"Spreek antwoord";
+  }
+}
+function setWhisperStatus(text){
+  const el=document.getElementById("whisperStatus");
+  if(el) el.textContent=text;
+}
+
+function updateWhisperProgress(info){
+  if(!info) return;
+  if(info.status==="progress" && typeof info.progress==="number"){
+    const pct=Math.max(0,Math.min(100,Math.round(info.progress)));
+    setWhisperStatus(`Lokaal Whisper laden… ${pct}%`);
+    setMicState("busy");
+  }else if(info.status==="ready"){
+    setWhisperStatus(`Lokaal Whisper klaar${whisperDevice?` · ${whisperDevice}`:""}`);
+  }else if(info.status==="initiate"){
+    setWhisperStatus("Lokaal Whisper voorbereiden…");
+    setMicState("busy");
+  }
+}
+
+async function ensureWhisper(){
+  if(whisperPipeline) return whisperPipeline;
+  if(whisperLoadingPromise) return whisperLoadingPromise;
+
+  whisperLoadingPromise=(async()=>{
+    setWhisperStatus("Lokaal Whisper voorbereiden…");
+    setMicState("busy");
+
+    const { pipeline, env } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0");
+    env.allowLocalModels=false;
+
+    // q8 houdt het model relatief compact, maar behoudt meer nauwkeurigheid
+    // dan agressievere 4-bit quantisatie — belangrijk voor ultrakorte woorden.
+    const common={
+      dtype:"q8",
+      progress_callback:updateWhisperProgress
+    };
+
+    // Eerst WebGPU voor snelheid; bij incompatibiliteit automatisch WASM.
+    if(navigator.gpu){
+      try{
+        whisperDevice="WebGPU";
+        whisperPipeline=await pipeline(
+          "automatic-speech-recognition",
+          "onnx-community/whisper-tiny",
+          {...common,device:"webgpu"}
+        );
+      }catch(err){
+        whisperPipeline=null;
+      }
+    }
+
+    if(!whisperPipeline){
+      whisperDevice="WASM";
+      whisperPipeline=await pipeline(
+        "automatic-speech-recognition",
+        "onnx-community/whisper-tiny",
+        {...common,device:"wasm"}
+      );
+    }
+
+    setWhisperStatus(`Lokaal Whisper klaar · ${whisperDevice}`);
+    setMicState("idle");
+    return whisperPipeline;
+  })();
+
+  try{
+    return await whisperLoadingPromise;
+  }catch(err){
+    whisperLoadingPromise=null;
+    whisperPipeline=null;
+    setWhisperStatus("Lokaal Whisper kon niet laden · browserherkenning blijft beschikbaar");
+    setMicState("idle");
+    throw err;
+  }
+}
+
+function monoAudio(buffer){
+  const len=buffer.length;
+  const channels=buffer.numberOfChannels;
+  if(channels===1) return new Float32Array(buffer.getChannelData(0));
+
+  const out=new Float32Array(len);
+  for(let ch=0;ch<channels;ch++){
+    const data=buffer.getChannelData(ch);
+    for(let i=0;i<len;i++) out[i]+=data[i]/channels;
+  }
+  return out;
+}
+
+function resampleLinear(input,sourceRate,targetRate=16000){
+  if(sourceRate===targetRate) return input;
+  const ratio=sourceRate/targetRate;
+  const newLength=Math.max(1,Math.floor(input.length/ratio));
+  const output=new Float32Array(newLength);
+
+  for(let i=0;i<newLength;i++){
+    const pos=i*ratio;
+    const left=Math.floor(pos);
+    const right=Math.min(input.length-1,left+1);
+    const frac=pos-left;
+    output[i]=input[left]*(1-frac)+input[right]*frac;
+  }
+  return output;
+}
+
+async function blobToWhisperAudio(blob){
+  const arrayBuffer=await blob.arrayBuffer();
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;
+  const ctx=new AudioCtx();
+  try{
+    const decoded=await ctx.decodeAudioData(arrayBuffer.slice(0));
+    return resampleLinear(monoAudio(decoded),decoded.sampleRate,16000);
+  }finally{
+    try{ await ctx.close(); }catch(e){}
+  }
+}
+
+function startEnsembleBrowserRecognition(expected){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR) return;
+
+  try{
+    ensembleRecognition=new SR();
+    ensembleRecognition.lang="it-IT";
+    ensembleRecognition.maxAlternatives=10;
+    ensembleRecognition.interimResults=true;
+    ensembleRecognition.continuous=true;
+
+    try{
+      if("phrases" in ensembleRecognition && window.SpeechRecognitionPhrase){
+        const target=expected.replace(/[.!?;:]+$/g,"").trim();
+        ensembleRecognition.phrases=[new SpeechRecognitionPhrase(target,8.5)];
+      }
+    }catch(e){}
+
+    ensembleRecognition.onresult=ev=>addSpeechCandidates(ev);
+    ensembleRecognition.onerror=()=>{};
+    ensembleRecognition.onend=()=>{};
+    ensembleRecognition.start();
+  }catch(e){
+    ensembleRecognition=null;
+  }
+}
+
+function stopEnsembleBrowserRecognition(){
+  if(!ensembleRecognition) return;
+  try{ ensembleRecognition.stop(); }catch(e){}
+  ensembleRecognition=null;
+}
+
+function stopLocalRecording(){
+  if(localRecordingStop){
+    try{ localRecordingStop(); }catch(e){}
+  }
+}
+
+async function recordOneUtterance(expected){
+  if(!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder){
+    throw new Error("MediaRecorder niet beschikbaar");
+  }
+
+  const short=isShortSpeechTarget(expected);
+  localStream=await navigator.mediaDevices.getUserMedia({
+    audio:{
+      echoCancellation:true,
+      noiseSuppression:true,
+      autoGainControl:true,
+      channelCount:1
+    }
+  });
+
+  const chunks=[];
+  let options={};
+  if(MediaRecorder.isTypeSupported("audio/webm;codecs=opus")){
+    options={mimeType:"audio/webm;codecs=opus"};
+  }
+
+  localRecorder=new MediaRecorder(localStream,options);
+  localRecordingActive=true;
+
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;
+  const audioCtx=new AudioCtx();
+  const source=audioCtx.createMediaStreamSource(localStream);
+  const analyser=audioCtx.createAnalyser();
+  analyser.fftSize=1024;
+  analyser.smoothingTimeConstant=.1;
+  source.connect(analyser);
+
+  const samples=new Float32Array(analyser.fftSize);
+  let speechStarted=false;
+  let lastVoice=0;
+  let stopped=false;
+  const startedAt=performance.now();
+  let noiseFloor=.006;
+  let calibrationCount=0;
+
+  localRecorder.ondataavailable=e=>{
+    if(e.data && e.data.size>0) chunks.push(e.data);
+  };
+
+  const blobPromise=new Promise((resolve,reject)=>{
+    localRecorder.onerror=e=>reject(e.error||new Error("Opnamefout"));
+    localRecorder.onstop=()=>{
+      const type=localRecorder.mimeType||"audio/webm";
+      resolve({
+        blob:new Blob(chunks,{type}),
+        speechStarted
+      });
+    };
+  });
+
+  function cleanup(){
+    try{ source.disconnect(); }catch(e){}
+    try{ analyser.disconnect(); }catch(e){}
+    try{ audioCtx.close(); }catch(e){}
+    if(localStream){
+      localStream.getTracks().forEach(t=>t.stop());
+    }
+    localStream=null;
+    localRecorder=null;
+    localRecordingActive=false;
+    localRecordingStop=null;
+  }
+
+  function doStop(){
+    if(stopped) return;
+    stopped=true;
+    try{
+      if(localRecorder && localRecorder.state!=="inactive") localRecorder.stop();
+    }catch(e){}
+  }
+  localRecordingStop=doStop;
+
+  localRecorder.start(100);
+  startEnsembleBrowserRecognition(expected);
+
+  const f=document.getElementById("speakFeedback");
+  f.textContent=short
+    ? "Luister… zeg het korte Italiaanse woord duidelijk."
+    : "Luister… geef je Italiaanse antwoord.";
+  f.className="feedback neutral";
+  setMicState("listening");
+
+  // Voice activity detection: dynamische ruisvloer + stilte na het antwoord.
+  await new Promise(resolve=>{
+    function tick(){
+      if(stopped) return resolve();
+
+      analyser.getFloatTimeDomainData(samples);
+      let sum=0;
+      for(let i=0;i<samples.length;i++) sum+=samples[i]*samples[i];
+      const rms=Math.sqrt(sum/samples.length);
+      const now=performance.now();
+      const elapsed=now-startedAt;
+
+      if(elapsed<350 && !speechStarted){
+        noiseFloor=(noiseFloor*calibrationCount+rms)/(calibrationCount+1);
+        calibrationCount++;
+      }
+
+      const threshold=Math.max(.012,Math.min(.05,noiseFloor*2.6+.004));
+
+      if(rms>threshold){
+        speechStarted=true;
+        lastVoice=now;
+      }
+
+      // Stop snel na stilte, maar geef korte woorden genoeg ruimte.
+      if(speechStarted && now-lastVoice>(short?700:850) && elapsed>700){
+        doStop();
+        return resolve();
+      }
+
+      // Geen spraak / harde bovengrens.
+      const hardLimit=short?3800:8500;
+      if(elapsed>hardLimit){
+        doStop();
+        return resolve();
+      }
+
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+
+  const result=await blobPromise;
+  stopEnsembleBrowserRecognition();
+  cleanup();
+  return result;
+}
+
+function evaluateCombinedSpeech(expected,whisperText,speechWasDetected){
+  const browserTexts=speechCandidates.map(x=>x.text).filter(Boolean);
+  const candidates=[whisperText,...browserTexts].filter(Boolean);
+
+  // Eén match uit één van beide engines volstaat.
+  if(candidates.some(t=>speechMatches(t,expected))){
+    finishSpeechSuccess(expected);
+    return;
+  }
+
+  const f=document.getElementById("speakFeedback");
+  const override=document.getElementById("overrideBtn");
+  const short=isShortSpeechTarget(expected);
+  const display=candidates.slice(0,3).join(" / ");
+
+  if(!speechWasDetected && !candidates.length){
+    f.textContent="Ik hoorde geen duidelijke spraak. Probeer opnieuw.";
+    f.className="feedback neutral";
+    override.classList.remove("hidden");
+    setMicState("idle");
+    return;
+  }
+
+  if(short){
+    // Bij ultrakorte woorden nooit automatisch afstraffen: zelfs Whisper kan
+    // bij één lettergreep onzeker zijn.
+    f.textContent=display
+      ? `Herkenning onzeker: “${display}”. Probeer opnieuw of kies ‘Ik zei het juist’.`
+      : "Ik hoorde je, maar kreeg geen betrouwbaar kort transcript. Probeer opnieuw.";
+    f.className="feedback neutral";
+    override.classList.remove("hidden");
+    setMicState("idle");
+    return;
+  }
+
+  markWrong(currentId);
+  f.textContent=display
+    ? `Nog niet juist. Herkend: “${display}”`
+    : "Ik hoorde je, maar kon het antwoord niet betrouwbaar herkennen.";
+  f.className="feedback bad";
+  override.classList.remove("hidden");
+  setMicState("idle");
+}
+
+async function startWhisperRecognition(){
+  if(speechBusy) return;
+
+  if(localRecordingActive){
+    stopLocalRecording();
+    return;
+  }
+
+  const expected=CARDS[currentId].it;
+  speechCandidates=[];
+  speechDetected=false;
+  speechSessionResolved=false;
+
+  const f=document.getElementById("speakFeedback");
+
+  try{
+    const pipe=await ensureWhisper();
+
+    const recording=await recordOneUtterance(expected);
+    speechDetected=recording.speechStarted;
+
+    if(!recording.speechStarted){
+      evaluateCombinedSpeech(expected,"",false);
+      return;
+    }
+
+    f.textContent="Whisper verwerkt je antwoord…";
+    f.className="feedback neutral";
+    setMicState("busy");
+
+    const audio=await blobToWhisperAudio(recording.blob);
+    const result=await pipe(audio,{
+      language:"italian",
+      task:"transcribe"
+    });
+
+    const whisperText=(result?.text||"").trim();
+    evaluateCombinedSpeech(expected,whisperText,true);
+  }catch(err){
+    // Als lokaal Whisper op dit toestel niet werkt, val automatisch terug
+    // op de bestaande browserherkenner.
+    setWhisperStatus("Lokaal Whisper niet beschikbaar · browserfallback actief");
+    setMicState("idle");
+    startBrowserRecognition();
+  }
+}
+
+function clearSpeechTimers(){
+  if(speechStopTimer){ clearTimeout(speechStopTimer); speechStopTimer=null; }
+  if(speechHardTimer){ clearTimeout(speechHardTimer); speechHardTimer=null; }
+}
+
+function addSpeechCandidates(ev){
+  const seen=new Set(speechCandidates.map(x=>x.text));
+  for(let r=ev.resultIndex||0;r<ev.results.length;r++){
+    const result=ev.results[r];
+    for(let i=0;i<result.length;i++){
+      const text=(result[i].transcript||"").trim();
+      if(text && !seen.has(text)){
+        speechCandidates.push({
+          text,
+          confidence: typeof result[i].confidence==="number" ? result[i].confidence : 0,
+          final: !!result.isFinal
+        });
+        seen.add(text);
+      }
+    }
+  }
+}
+
+function bestSpeechText(){
+  if(!speechCandidates.length) return "";
+  const sorted=[...speechCandidates].sort((a,b)=>{
+    if(a.final!==b.final) return a.final ? -1 : 1;
+    return (b.confidence||0)-(a.confidence||0);
+  });
+  return sorted[0].text;
+}
+
+function finishSpeechSuccess(expected){
+  if(speechSessionResolved) return;
+  speechSessionResolved=true;
+  clearSpeechTimers();
+
+  try{
+    if(recognition && recognizing) recognition.abort();
+  }catch(e){}
+
+  recognizing=false;
+  advanceBox(currentId, wrongAttemptOnCurrent);
+
+  const f=document.getElementById("speakFeedback");
+  f.textContent="Juist ✓";
+  f.className="feedback good";
+  document.getElementById("overrideBtn").classList.add("hidden");
+
+  speakItalian(expected,()=>setTimeout(()=>newCard(),260));
+}
+
+function finishSpeechUnresolved(errorCode=null){
+  if(speechSessionResolved) return;
+  speechSessionResolved=true;
+  clearSpeechTimers();
+  recognizing=false;
+  setMicState("idle");
+
+  const expected=CARDS[currentId].it;
+  const short=isShortSpeechTarget(expected);
+  const heard=bestSpeechText();
+  const f=document.getElementById("speakFeedback");
+  const override=document.getElementById("overrideBtn");
+
+  // Essentieel: herkenningsfalen is geen leerfout.
+  if(!heard){
+    if(speechDetected){
+      f.textContent=short
+        ? "Ik hoorde je wel, maar de spraakherkenner kon dit korte woord niet betrouwbaar omzetten. Probeer nog eens."
+        : "Ik hoorde je wel, maar kreeg geen bruikbaar transcript. Probeer nog eens.";
+    }else{
+      f.textContent="Ik hoorde geen duidelijke spraak. Probeer opnieuw.";
+    }
+    f.className="feedback neutral";
+    override.classList.remove("hidden");
+    return;
+  }
+
+  // Bij ultrakorte woorden is een mismatch te vaak een ASR-fout om de kaart
+  // automatisch af te straffen. De gebruiker kan opnieuw proberen of corrigeren.
+  if(short){
+    f.textContent=`Ik hoorde: “${heard}”. Bij korte woorden is de herkenning onzeker — probeer opnieuw of kies ‘Ik zei het juist’.`;
+    f.className="feedback neutral";
+    override.classList.remove("hidden");
+    return;
+  }
+
+  // Bij langere antwoorden is het transcript veel betrouwbaarder.
+  markWrong(currentId);
+  f.textContent=`Nog niet juist. Ik hoorde: “${heard}”`;
+  f.className="feedback bad";
+  override.classList.remove("hidden");
+}
+
+function makeRecognitionSession(expected){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const r=new SR();
+  const short=isShortSpeechTarget(expected);
+
+  r.lang="it-IT";
+  r.maxAlternatives=10;
+
+  // Als de browser al een lokale Italiaanse "command"-herkenner heeft,
+  // gebruiken we die voor geïsoleerde korte woorden. We installeren niets
+  // automatisch; dit is alleen een opportunistische verbetering.
+  if(short && localItalianCommandAvailable && "processLocally" in r){
+    try{ r.processLocally=true; }catch(e){}
+  }
+
+  // Kernverbetering: voor korte woorden houden we ook onzekere/interim
+  // hypotheses bij in plaats van enkel één finaal transcript.
+  r.interimResults=short;
+  r.continuous=short;
+
+  // Contextual biasing: modernere API, alleen gebruiken waar beschikbaar.
+  // Hoge maar niet maximale boost om pure false positives te beperken.
+  try{
+    if("phrases" in r && window.SpeechRecognitionPhrase){
+      const target=expected.replace(/[.!?;:]+$/g,"").trim();
+      r.phrases=[new SpeechRecognitionPhrase(target, short?8.5:6.0)];
+    }
+  }catch(e){}
+
+  return r;
+}
+
+async function setupRecognition(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const support=document.getElementById("speechSupport");
+  if(!SR){
+    support.textContent="Spraakherkenning is in deze browser niet beschikbaar. Open de app in Chrome of Edge.";
+    document.getElementById("micBtn").disabled=true;
+    return;
+  }
+
+  support.textContent="Italiaanse spraakherkenning · lokaal Whisper is primair, browserherkenning is fallback";
+
+  // Nieuwe Web Speech-API's kunnen expliciet een lokaal model voor korte
+  // commando's gebruiken. Alleen inschakelen als het al beschikbaar is.
+  try{
+    if(typeof SR.available==="function"){
+      const availability=await SR.available({
+        langs:["it-IT"],
+        processLocally:true,
+        quality:"command"
+      });
+      if(availability==="available"){
+        localItalianCommandAvailable=true;
+        support.textContent="Italiaanse spraakherkenning · lokale korte-woordenmodus actief";
+      }
+    }
+  }catch(e){
+    // Geen probleem: cloud/browserherkenning blijft de fallback.
+  }
+}
+
+function startBrowserRecognition(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR||speechBusy) return;
+
+  if(recognizing && recognition){
+    try{ recognition.stop(); }catch(e){}
+    return;
+  }
+
+  const expected=CARDS[currentId].it;
+  const short=isShortSpeechTarget(expected);
+  const mySession=++speechSessionNo;
+
+  speechCandidates=[];
+  speechDetected=false;
+  speechSessionResolved=false;
+  clearSpeechTimers();
+
+  recognition=makeRecognitionSession(expected);
+
+  recognition.onstart=()=>{
+    if(mySession!==speechSessionNo) return;
+    recognizing=true;
+    setMicState("listening");
+    const f=document.getElementById("speakFeedback");
+    f.textContent=short ? "Spreek het korte woord duidelijk uit…" : "Spreek nu…";
+    f.className="feedback neutral";
+
+    // Veiligheidslimiet. Korte woorden krijgen extra tijd om interim/final
+    // hypotheses af te ronden.
+    speechHardTimer=setTimeout(()=>{
+      try{ if(recognition && recognizing) recognition.stop(); }catch(e){}
+    }, short?4500:7000);
+  };
+
+  recognition.onspeechstart=()=>{
+    if(mySession!==speechSessionNo) return;
+    speechDetected=true;
+  };
+
+  recognition.onresult=(ev)=>{
+    if(mySession!==speechSessionNo || speechSessionResolved) return;
+    addSpeechCandidates(ev);
+
+    // We bekijken ALLE alternatieven en, bij korte woorden, ook interimresultaten.
+    const matched=speechCandidates.some(x=>speechMatches(x.text,expected));
+    if(matched){
+      finishSpeechSuccess(expected);
+      return;
+    }
+
+    // Voor lange antwoorden is een finaal resultaat voldoende om te beoordelen.
+    if(!short){
+      let hasFinal=false;
+      for(let i=0;i<ev.results.length;i++){
+        if(ev.results[i].isFinal){hasFinal=true;break;}
+      }
+      if(hasFinal) finishSpeechUnresolved();
+    }
+  };
+
+  recognition.onspeechend=()=>{
+    if(mySession!==speechSessionNo || speechSessionResolved) return;
+
+    if(short){
+      // Niet meteen afsluiten: Chrome krijgt nog een fractie van een seconde
+      // om een onzekere korte hypothese te finaliseren.
+      speechStopTimer=setTimeout(()=>{
+        try{ if(recognition && recognizing) recognition.stop(); }catch(e){}
+      },650);
+    }
+  };
+
+  recognition.onnomatch=()=>{
+    // Geen straf: onnomatch is een herkenningsprobleem, geen bewijs van een fout antwoord.
+  };
+
+  recognition.onerror=(ev)=>{
+    if(mySession!==speechSessionNo || speechSessionResolved) return;
+    if(ev.error==="aborted") return;
+
+    if(ev.error==="not-allowed"||ev.error==="service-not-allowed"){
+      speechSessionResolved=true;
+      clearSpeechTimers();
+      recognizing=false;
+      setMicState("idle");
+      const f=document.getElementById("speakFeedback");
+      f.textContent="Microfoontoegang is niet toegestaan. Geef deze pagina microfoontoegang.";
+      f.className="feedback bad";
+      return;
+    }
+
+    // no-speech / network / phrases-not-supported: laat onend de sessie netjes afwerken.
+  };
+
+  recognition.onend=()=>{
+    if(mySession!==speechSessionNo) return;
+    recognizing=false;
+    if(!speechBusy) setMicState("idle");
+    if(!speechSessionResolved) finishSpeechUnresolved();
+  };
+
+  try{
+    recognition.start();
+  }catch(e){
+    speechSessionResolved=true;
+    recognizing=false;
+    setMicState("idle");
+    const f=document.getElementById("speakFeedback");
+    f.textContent="De spraakherkenning kon niet starten. Probeer opnieuw.";
+    f.className="feedback bad";
+  }
+}
+// Primaire spreekroute: gratis lokaal Whisper; browser-ASR als fallback.
+async function startRecognition(){
+  await startWhisperRecognition();
+}
+
+// Tabs
+document.querySelectorAll(".tab").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    mode=btn.dataset.mode;
+    document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===btn));
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    document.getElementById(mode+"Panel").classList.add("active");
+    if(mode==="write") setTimeout(()=>document.getElementById("writeInput").focus(),50);
+    if(mode==="practice" && !practiceOrder.length) startPractice();
+  });
+});
+
+// Kaarten
+document.getElementById("showAnswerBtn").onclick=()=>{
+  document.getElementById("cardsAnswer").classList.remove("hidden");
+  document.getElementById("showAnswerBtn").classList.add("hidden");
+  document.getElementById("gradeButtons").classList.remove("hidden");
+};
+document.getElementById("rightBtn").onclick=()=>{ advanceBox(currentId,false); newCard(); };
+document.getElementById("wrongBtn").onclick=()=>{ markWrong(currentId); newCard(); };
+document.getElementById("skipCardsBtn").onclick=skip;
+document.getElementById("dontKnowCardsBtn").onclick=dontKnowCurrent;
+
+// Schrijven
+function checkWrite(){
+  const input=document.getElementById("writeInput").value;
+  const expected=CARDS[currentId].it;
+  const f=document.getElementById("writeFeedback");
+  if(normalizeWrite(input)===normalizeWrite(expected)){
+    advanceBox(currentId,wrongAttemptOnCurrent);
+    f.textContent="Juist ✓";
+    f.className="feedback good";
+    setTimeout(()=>newCard(),520);
+  } else {
+    markWrong(currentId);
+    f.textContent="Nog niet juist. Probeer opnieuw.";
+    f.className="feedback bad";
+  }
+}
+document.getElementById("checkWriteBtn").onclick=checkWrite;
+document.getElementById("writeInput").addEventListener("keydown",e=>{if(e.key==="Enter")checkWrite();});
+document.getElementById("revealWriteBtn").onclick=()=>{
+  markWrong(currentId);
+  const f=document.getElementById("writeFeedback");
+  f.textContent="Correct: "+CARDS[currentId].it;
+  f.className="feedback neutral";
+};
+document.getElementById("skipWriteBtn").onclick=skip;
+document.getElementById("dontKnowWriteBtn").onclick=dontKnowCurrent;
+
+// Spreken
+document.getElementById("micBtn").onclick=startRecognition;
+
+document.getElementById("revealSpeakBtn").onclick=()=>{
+  const a=document.getElementById("speakAnswer");
+  const b=document.getElementById("revealSpeakBtn");
+  const isHidden=a.classList.contains("hidden");
+
+  if(isHidden){
+    a.textContent=CARDS[currentId].it;
+    a.classList.remove("hidden");
+    b.textContent="Verberg antwoord";
+    // Een bekeken antwoord geldt als hulp: bij een daaropvolgend juist antwoord
+    // wordt deze kaart niet meteen naar een hogere bak gepromoveerd.
+    wrongAttemptOnCurrent=true;
+    speakItalian(CARDS[currentId].it);
+  }else{
+    a.classList.add("hidden");
+    b.textContent="Toon antwoord";
+  }
+};
+
+document.getElementById("skipSpeakBtn").onclick=skip;
+document.getElementById("dontKnowSpeakBtn").onclick=dontKnowCurrent;
+document.getElementById("overrideBtn").onclick=()=>{
+  const f=document.getElementById("speakFeedback");
+
+  // Dit is een correctie van de HERKENNER, niet noodzakelijk van de leerling.
+  // Daarom telt de kaart als juist volgens haar bestaande bakstatus.
+  advanceBox(currentId,wrongAttemptOnCurrent);
+  f.textContent="Juist gemarkeerd ✓";
+  f.className="feedback good";
+  document.getElementById("overrideBtn").classList.add("hidden");
+  speakItalian(CARDS[currentId].it,()=>setTimeout(()=>newCard(),260));
+};
+
+// Gemengde oefeningen — los van de kaartenbak
+function normalizePractice(s){
+  return String(s).toLowerCase()
+    .normalize("NFC")
+    .replace(/[’‘`´]/g,"'")
+    .replace(/[.!?;:]+$/g,"")
+    .replace(/\s+/g," ")
+    .trim();
+}
+
+function shuffledPractice(){
+  const arr=PRACTICE.map((_,i)=>i);
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function startPractice(){
+  practiceOrder=shuffledPractice();
+  practicePos=0;
+  practiceCorrect=0;
+  practiceAnswered=0;
+  renderPractice();
+}
+
+function currentPractice(){
+  return PRACTICE[practiceOrder[practicePos]];
+}
+
+function renderPractice(){
+  if(!practiceOrder.length) startPractice();
+  const ex=currentPractice();
+  practiceLocked=false;
+
+  document.getElementById("practiceProgress").textContent=`Oefening ${practicePos+1}/${practiceOrder.length}`;
+  document.getElementById("practiceScore").textContent=`Score ${practiceCorrect}/${practiceAnswered}`;
+  document.getElementById("practiceQuestion").textContent=ex.q;
+  document.getElementById("practiceLabel").textContent=ex.type==="choice" ? "Kies het juiste antwoord" : "Vul het juiste woord in";
+
+  const choices=document.getElementById("practiceChoices");
+  const inputWrap=document.getElementById("practiceInputWrap");
+  const input=document.getElementById("practiceInput");
+  const feedback=document.getElementById("practiceFeedback");
+
+  feedback.className="feedback hidden";
+  feedback.textContent="";
+  choices.innerHTML="";
+  input.value="";
+
+  if(ex.type==="choice"){
+    inputWrap.classList.add("hidden");
+    choices.classList.remove("hidden");
+    ex.options.forEach(opt=>{
+      const btn=document.createElement("button");
+      btn.className="choice-btn";
+      btn.type="button";
+      btn.textContent=opt;
+      btn.onclick=()=>answerChoice(btn,opt);
+      choices.appendChild(btn);
+    });
+  }else{
+    choices.classList.add("hidden");
+    inputWrap.classList.remove("hidden");
+    setTimeout(()=>{ if(mode==="practice") input.focus(); },50);
+  }
+}
+
+function finishPracticeAnswer(correct, shownAnswer){
+  if(practiceLocked) return;
+  practiceLocked=true;
+  practiceAnswered++;
+  if(correct) practiceCorrect++;
+
+  const f=document.getElementById("practiceFeedback");
+  f.className="feedback "+(correct?"good":"bad");
+  f.textContent=correct ? "Juist ✓" : `Niet juist. Correct: ${shownAnswer}`;
+  document.getElementById("practiceScore").textContent=`Score ${practiceCorrect}/${practiceAnswered}`;
+}
+
+function answerChoice(btn,opt){
+  if(practiceLocked) return;
+  const ex=currentPractice();
+  const correct=opt===ex.answer;
+  document.querySelectorAll("#practiceChoices .choice-btn").forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===ex.answer) b.classList.add("correct");
+  });
+  if(!correct) btn.classList.add("wrong");
+  finishPracticeAnswer(correct,ex.answer);
+}
+
+function checkPracticeInput(){
+  if(practiceLocked) return;
+  const ex=currentPractice();
+  const value=document.getElementById("practiceInput").value;
+  const correct=normalizePractice(value)===normalizePractice(ex.answer);
+  finishPracticeAnswer(correct,ex.display||ex.answer);
+}
+
+function revealPractice(){
+  if(practiceLocked) return;
+  const ex=currentPractice();
+  if(ex.type==="choice"){
+    document.querySelectorAll("#practiceChoices .choice-btn").forEach(b=>{
+      b.disabled=true;
+      if(b.textContent===ex.answer) b.classList.add("correct");
+    });
+  }else{
+    document.getElementById("practiceInput").value=ex.answer;
+  }
+  practiceAnswered++;
+  practiceLocked=true;
+  const f=document.getElementById("practiceFeedback");
+  f.className="feedback neutral";
+  f.textContent=`Correct: ${ex.display||ex.answer}`;
+  document.getElementById("practiceScore").textContent=`Score ${practiceCorrect}/${practiceAnswered}`;
+}
+
+function nextPractice(){
+  if(!practiceOrder.length) return startPractice();
+  practicePos++;
+  if(practicePos>=practiceOrder.length){
+    practiceOrder=shuffledPractice();
+    practicePos=0;
+  }
+  renderPractice();
+}
+
+document.getElementById("practiceCheckBtn").onclick=checkPracticeInput;
+document.getElementById("practiceInput").addEventListener("keydown",e=>{if(e.key==="Enter")checkPracticeInput();});
+document.getElementById("practiceRevealBtn").onclick=revealPractice;
+document.getElementById("practiceNextBtn").onclick=nextPractice;
+document.getElementById("practiceRestartBtn").onclick=startPractice;
+
+// Inhoud van Totaal / Bak 1 / Bak 2 / Bak 3 bekijken
+function openWordList(box=null){
+  const modal=document.getElementById("boxModal");
+  const title=document.getElementById("boxModalTitle");
+  const list=document.getElementById("boxWordList");
+
+  const ids=CARDS.map((_,i)=>i).filter(i=>box===null || state.cards[i].box===box);
+  title.textContent = box===null
+    ? `Alle woorden (${ids.length})`
+    : (box===0 ? `Extra aandacht (${ids.length})` : `Bak ${box} (${ids.length})`);
+
+  if(!ids.length){
+    list.innerHTML='<div class="word-empty">Er zitten momenteel geen woorden in deze bak.</div>';
+  }else{
+    list.innerHTML=ids.map(i=>{
+      const c=CARDS[i];
+      const b=state.cards[i].box;
+      return `<div class="word-row">
+        <div class="word-nl">${escapeHtml(c.nl)}${box===null?` <span style="color:var(--muted);font-weight:600;font-size:.78rem">· ${b===0?"Extra aandacht":"Bak "+b}</span>`:""}</div>
+        <div class="word-it">${escapeHtml(c.it)}</div>
+      </div>`;
+    }).join("");
+  }
+
+  modal.classList.remove("hidden");
+  document.body.style.overflow="hidden";
+}
+
+function closeWordList(){
+  document.getElementById("boxModal").classList.add("hidden");
+  document.body.style.overflow="";
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,ch=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+  }[ch]));
+}
+
+document.getElementById("showTotal").onclick=()=>openWordList(null);
+document.getElementById("showB0").onclick=()=>openWordList(0);
+document.getElementById("showB1").onclick=()=>openWordList(1);
+document.getElementById("showB2").onclick=()=>openWordList(2);
+document.getElementById("showB3").onclick=()=>openWordList(3);
+document.getElementById("boxModalClose").onclick=closeWordList;
+document.getElementById("boxModal").onclick=e=>{
+  if(e.target.id==="boxModal") closeWordList();
+};
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape" && !document.getElementById("boxModal").classList.contains("hidden")) closeWordList();
+});
+
+// Reset
+document.getElementById("resetBtn").onclick=()=>{
+  if(confirm("Alle voortgang voor les 1 wissen en alle 50 kaarten terug in Bak 1 zetten? Ook Extra aandacht wordt geleegd.")){
+    state.cards=defaultCardState(); turn=0; state.turn=0; saveState(); currentId=null; lastId=null; newCard();
+  }
+};
+
+if("speechSynthesis" in window){
+  speechSynthesis.getVoices();
+  if(typeof speechSynthesis.onvoiceschanged!=="undefined") speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();
+}
+setupRecognition();
+updateStats();
+newCard();
+</script>
+</body>
+</html>
